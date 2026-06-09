@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Book Your Stay | <%= contactInfo.name %></title>
+    <link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+    <header>
+        <h1><%= contactInfo.name %></h1>
+        <nav>
+            <a href="/">Home</a> | <a href="/about">About</a> | <a href="/rooms">Rooms</a> | 
+            <a href="/gallery">Gallery</a> | <a href="/booking">Book Now</a> | <a href="/contact">Contact</a>
+        </nav>
+    </header>
+
+    <main>
+        <h2>Reserve a Room</h2>
+        
+        <% if (message) { %>
+            <p class="alert"><%= message %></p>
+        <% } %>
+
+        <form action="/booking" method="POST">
+            <label>Full Name:</label>
+            <input type="text" name="name" required><br><br>
+
+            <label>Email Address:</label>
+            <input type="email" name="email" required><br><br>
+
+            <label>Phone Number:</label>
+            <input type="tel" name="phone" required><br><br>
+
+            <label>Room Type:</label>
+            <select name="room">
+                <option value="Deluxe Ocean View">Deluxe Ocean View</option>
+                <option value="Executive Suite">Executive Suite</option>
+                <option value="Standard Cozy">Standard Cozy</option>
+            </select><br><br>
+
+            <label>Check-In Date:</label>
+            <input type="date" name="checkin" required><br><br>
+
+            <label>Check-Out Date:</label>
+            <input type="date" name="checkout" required><br><br>
+
+            <button type="submit">Submit Reservation</button>
+        </form>
+    </main>
+
+    <footer>
+        <p>Contact us: <%= contactInfo.phone %> | <%= contactInfo.email %></p>
+    </footer>
+</body>
+</html>
