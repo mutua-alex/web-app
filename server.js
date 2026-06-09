@@ -6,48 +6,48 @@ const path = require('path');
 const app = express();
 const port = process.env.PORT || 3000;
 
-// Database Connection
+// Neon Database Connection
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
-  ssl: { rejectUnauthorized: false } // Required for Neon
+  ssl: { rejectUnauthorized: false } // Required for Neon secure connection
 });
 
-// Middleware
+// Middleware to parse form data and JSON payloads
 app.use(express.urlencoded({ extended: true }));
+app.use(express.json());
+
+// Serve all static files (CSS, images, additional pages) from the public folder
 app.use(express.static(path.join(__dirname, 'public')));
-app.set('view engine', 'ejs');
 
-// Global Contact Info Middleware
-app.use((req, res, next) => {
-  res.locals.contactInfo = {
-    phone: "0769329734",
-    email: "amutua691@gmail.com",
-    name: "Blue Sky Resort"
-  };
-  next();
+// Force the root URL to serve index.html safely
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
-
-// Routes
-app.get('/', (req, res) => res.render('home'));
-app.get('/about', (req, res) => res.render('about'));
-app.get('/rooms', (req, res) => res.render('rooms'));
-app.get('/gallery', (req, res) => res.render('gallery'));
-app.get('/contact', (req, res) => res.render('contact'));
-app.get('/booking', (req, res) => res.render('booking', { message: null }));
 
 // Handle Booking Form Submission
-app.post('/booking', async (req, res) => {
+app.post('/api/booking', async (req, res) => {
   const { name, email, phone, room, checkin, checkout } = req.body;
+  
   try {
     await pool.query(
       'INSERT INTO bookings (guest_name, guest_email, guest_phone, room_type, check_in, check_out) VALUES ($1, $2, $3, $4, $5, $6)',
       [name, email, phone, room, checkin, checkout]
     );
-    res.render('booking', { message: 'Reservation submitted successfully! We will contact you soon.' });
+    // Redirects back to booking page with a success query string parameter
+    res.redirect('/booking.html?status=success');
   } catch (err) {
-    console.error(err);
-    res.render('booking', { message: 'Something went wrong. Please try again.' });
+    console.error("Database Error:", err);
+    // Redirects back to booking page with an error query string parameter
+    res.redirect('/booking.html?status=error');
   }
 });
 
-app.listen(port, () => console.log(`Server running on http://localhost:${port}`));
+// Catch-all route to redirect back to home page if a user hits a non-existent URL
+app.get('*', (req, res) => {
+  res.redirect('/');
+});
+
+// Start Server
+app.listen(port, () => {
+  console.log(`Blue Sky Resort server successfully running on port ${port}`);
+});
